@@ -14,6 +14,7 @@ app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
 
+hbs.registerPartials(__dirname + '/views/partials');
 
 // setting the spotify-api goes here:
 const clientId = '6d07cfac048840f49487239e6c0a5a1a',
@@ -42,6 +43,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res, next) => {
   res.render('home')
 })
+
+app.get('/artists', (req, res, next) => {
+  spotifyApi.searchArtists(req.query.artistSearch)
+    .then(data => {
+      console.log("The received data from the API: ", data.body.artists.items[0].images[0].url);
+      // ----> 'HERE WHAT WE WANT TO DO AFTER RECEIVING THE DATA FROM THE API'
+      res.render('artists', { artistObject: data.body.artists.items })
+    })
+    .catch(err => {
+      console.log("The error while searching artists occurred: ", err);
+    })
+})
+
+app.get('/albums', (req, res, next) => {
+  spotifyApi.getArtistAlbums(req.query.artistID)
+    .then(data => {
+      // res.send(data.body.items[0].images);
+      res.render('albums', { albumObject: data.body.items })
+    })
+    .catch(err => {
+      console.log("The error while searching albums occurred: ", err);
+    })
+})
+
 
 
 
